@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController
 class BookController {
     @GetMapping
     fun getAllBooks(): String {
-        return "Hello Kotlin"
+        val book: Book = Book(1, "The Nine", "IMAGEM FODA", "Muito legal", false, 5.0, null, null)
+        return "${book.name} - ${book.description} -> ${when(book.rating) { null -> 0.0 else -> book.rating}}"
     }
 }
