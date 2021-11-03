@@ -1,15 +1,24 @@
 package com.example.demo.book
 
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import com.example.demo.book.dtos.BookDTO
+import com.example.demo.book.dtos.CreateBookDTO
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder
+
 
 @RestController
 @RequestMapping("books")
-class BookController {
+class BookController(
+    @Autowired
+    val service: BookService
+) {
     @GetMapping
-    fun getAllBooks(): String {
-        val book: Book = Book(1, "The Nine", "IMAGEM FODA", "Muito legal", false, 5.0, null, null)
-        return "${book.name} - ${book.description} -> ${when(book.rating) { null -> 0.0 else -> book.rating}}"
+    fun getAllBooks(): MutableIterable<Book> = service.getAll()
+
+    @PostMapping
+    fun create(@RequestBody createBook: Book ): Book {
+       return this.service.create(createBook)
     }
 }
