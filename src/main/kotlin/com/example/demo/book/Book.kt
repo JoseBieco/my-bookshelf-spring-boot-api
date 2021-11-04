@@ -6,30 +6,30 @@ import javax.persistence.*
 
 @Entity
 @Table(name = "BOOKS")
-data class Book (
+class Book(
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
-        val id: Long,
+        val id: Long? = null,
 
-        @Column(columnDefinition = "TEXT")
-        var name: String,
-
-        @Column(columnDefinition = "TEXT")
-        var image: String,
+        @Column(columnDefinition = "TEXT",  nullable = false)
+        var name: String? = null,
 
         @Column(columnDefinition = "TEXT", nullable = true)
-        var description: String?,
+        var image: String? = null,
+
+        @Column(columnDefinition = "TEXT", nullable = true)
+        var description: String? = null,
 
         @Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
-        var isRead: Boolean,
+        var isRead: Boolean? = null,
 
         @Column(columnDefinition = "DOUBLE DEFAULT 0.0")
-        var rating: Double,
+        var rating: Double? = null,
 
         @Column(nullable = true)
-        var purchaseDate: LocalDate?,
+        var purchaseDate: LocalDate? = null,
 
         @Column(nullable = true)
-        var completionDate: LocalDate?
-) {
+        var completionDate: LocalDate? = null
+) : Serializable {
 }
