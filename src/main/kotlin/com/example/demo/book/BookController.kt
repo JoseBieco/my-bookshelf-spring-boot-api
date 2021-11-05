@@ -1,6 +1,7 @@
 package com.example.demo.book
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
@@ -19,7 +20,7 @@ class BookController(
         @RequestParam(value = "linesPerPage", defaultValue = "5") linesPerPage: Int,
         @RequestParam(value = "direction", defaultValue = "ASC") direction: String,
         @RequestParam(value = "orderBy", defaultValue = "id") orderBy: String
-    ): MutableIterable<Book> {
+    ): Page<Book> {
         val pageRequest: PageRequest = PageRequest.of(page, linesPerPage, Sort.Direction.valueOf(direction), orderBy)
         return service.getAll(pageRequest)
     }
