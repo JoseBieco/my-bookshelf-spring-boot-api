@@ -21,4 +21,8 @@ class BookService(
             completionDate = newBook.completionDate
         ))
     }
+
+    fun delete(id: Long) {
+        return this.db.deleteById(id)
+    }
 }
