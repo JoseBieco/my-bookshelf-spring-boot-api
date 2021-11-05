@@ -13,7 +13,7 @@ class User(
     @Column(columnDefinition = "TEXT",  nullable = false)
     var name: String? = null,
 
-    @Column(columnDefinition = "TEXT",  nullable = false)
+    @Column(columnDefinition = "TEXT",  nullable = false, unique = true)
     var email: String? = null,
 
     @Column(columnDefinition = "TEXT",  nullable = false)
