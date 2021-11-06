@@ -32,7 +32,7 @@ class UserService(
         ))
     }
 
-    fun login(login: LoginDto) {
+    fun login(login: LoginDto): Boolean {
         /**
          * Validate email and password;
          * If not valid, throw 400;
@@ -40,5 +40,10 @@ class UserService(
          * Check if email is registered and if the password match,
          * If the password not match, throw 401
          */
+        if(!login.validate()) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid email or password!")
+        }
+
+        return this.passwordEncoder.matches(login.password, this.db.getOne(12).password)
     }
 }
