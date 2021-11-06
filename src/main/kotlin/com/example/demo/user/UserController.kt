@@ -1,5 +1,6 @@
 package com.example.demo.user
 
+import com.example.demo.user.dtos.LoginDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -25,5 +26,11 @@ class UserController(
     @RequestMapping("/register")
     fun register(@RequestBody user: User): User {
         return this.service.create(user);
+    }
+
+    @PostMapping
+    @RequestMapping("/login")
+    fun login(@RequestBody login: LoginDto) {
+        return this.service.login(login)
     }
 }
