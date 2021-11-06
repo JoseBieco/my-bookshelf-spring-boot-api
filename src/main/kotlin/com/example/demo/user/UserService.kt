@@ -1,5 +1,6 @@
 package com.example.demo.user
 
+import com.example.demo.user.dtos.LoginDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -29,5 +30,15 @@ class UserService(
             email = user.email,
             password = this.passwordEncoder.encode(user.password)
         ))
+    }
+
+    fun login(login: LoginDto) {
+        /**
+         * Validate email and password;
+         * If not valid, throw 400;
+         *
+         * Check if email is registered and if the password match,
+         * If the password not match, throw 401
+         */
     }
 }
