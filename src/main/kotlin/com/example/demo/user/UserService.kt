@@ -32,7 +32,7 @@ class UserService(
         ))
     }
 
-    fun login(login: LoginDto): Boolean {
+    fun login(login: LoginDto): User {
         /**
          * Validate email and password;
          * If not valid, throw 400;
@@ -44,6 +44,11 @@ class UserService(
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid email or password!")
         }
 
-        return this.passwordEncoder.matches(login.password, this.db.getOne(12).password)
+        val user = this.db.getByEmail(login.email)
+        if(!this.passwordEncoder.matches(login.password, user.password)) {
+            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized!")
+        }
+
+        return user
     }
 }
