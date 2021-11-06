@@ -15,6 +15,13 @@ class UserService(
     @Autowired
     val passwordEncoder: PasswordEncoder
 ) {
+
+    /**
+     * Register new user
+     * @param user User
+     * @return Created User
+     * @throws HttpStatus.BAD_REQUEST This email is already registered
+     */
     fun create(user: User): User {
         /**
          * Validate email -> must be unique
@@ -32,6 +39,13 @@ class UserService(
         ))
     }
 
+    /**
+     * Login method
+     * @param login LoginDto
+     * @return Valid User
+     * @throws HttpStatus.BAD_REQUEST Invalid email or password
+     * @throws HttpStatus.UNAUTHORIZED Unauthorized
+     */
     fun login(login: LoginDto): User {
         /**
          * Validate email and password;
