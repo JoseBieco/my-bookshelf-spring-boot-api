@@ -30,7 +30,7 @@ class UserController(
 
     @PostMapping
     @RequestMapping("/login")
-    fun login(@RequestBody login: LoginDto): Boolean {
+    fun login(@RequestBody login: LoginDto): User {
         return this.service.login(login)
     }
 }
