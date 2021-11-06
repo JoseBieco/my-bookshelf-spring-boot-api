@@ -1,5 +1,7 @@
 package com.example.demo.user
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonProperty
 import java.io.Serializable
 import javax.persistence.*
 
@@ -17,6 +19,7 @@ class User(
     var email: String? = null,
 
     @Column(columnDefinition = "TEXT",  nullable = false)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     var password: String? = null,
 ): Serializable {
 }
