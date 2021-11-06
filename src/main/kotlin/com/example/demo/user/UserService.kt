@@ -2,13 +2,17 @@ package com.example.demo.user
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
 
 @Service
 class UserService(
     @Autowired
-    val db: UserRepository
+    val db: UserRepository,
+
+    @Autowired
+    val passwordEncoder: PasswordEncoder
 ) {
     fun create(user: User): User {
         /**
@@ -23,7 +27,7 @@ class UserService(
         return this.db.save(User(
             name = user.name,
             email = user.email,
-            password = user.password
+            password = this.passwordEncoder.encode(user.password)
         ))
     }
 }
