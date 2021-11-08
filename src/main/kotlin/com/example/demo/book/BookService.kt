@@ -1,5 +1,6 @@
 package com.example.demo.book
 
+import com.example.demo.book.dtos.CreateBookDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -16,16 +17,8 @@ class BookService(
         return db.find(pageable)
     }
 
-    fun create(newBook: Book): Book {
-        return this.db.save(Book(
-            name = newBook.name,
-            image = newBook.image,
-            description = newBook.description,
-            isRead = newBook.isRead,
-            rating = newBook.rating,
-            purchaseDate = newBook.purchaseDate,
-            completionDate = newBook.completionDate
-        ))
+    fun create(newBook: CreateBookDto): Book {
+        return this.db.save(Book(newBook))
     }
 
     fun delete(id: Long) {
@@ -36,8 +29,6 @@ class BookService(
         if(!this.db.existsById(id)) {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "The entity with id $id does not exist")
         }
-        //var updateBook = this.db.findById(id)
-
         return this.db.save(book)
     }
 
