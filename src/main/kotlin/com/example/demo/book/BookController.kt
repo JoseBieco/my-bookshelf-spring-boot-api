@@ -1,5 +1,6 @@
 package com.example.demo.book
 
+import com.example.demo.book.dtos.CreateBookDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
@@ -30,7 +31,7 @@ class BookController(
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    fun create(@RequestBody createBook: Book ): Book {
+    fun create(@RequestBody createBook: CreateBookDto ): Book {
         return this.service.create(createBook)
     }
 
