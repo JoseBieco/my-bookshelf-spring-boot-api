@@ -1,6 +1,7 @@
 package com.example.demo.user
 
 import com.example.demo.user.dtos.LoginDto
+import com.example.demo.user.dtos.RegisterUserDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -20,9 +21,15 @@ class UserService(
      * Register new user
      * @param user User
      * @return Created User
+     * @throws HttpStatus.BAD_REQUEST Invalid user information
      * @throws HttpStatus.BAD_REQUEST This email is already registered
      */
-    fun create(user: User): User {
+    fun create(user: RegisterUserDto): User {
+
+        if(!user.validate()) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid user information!")
+        }
+
         /**
          * Validate email -> must be unique
          * throw error if it's not unique
@@ -31,12 +38,7 @@ class UserService(
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "This email is already registered")
         }
 
-        // TODO: encrypt password
-        return this.db.save(User(
-            name = user.name,
-            email = user.email,
-            password = this.passwordEncoder.encode(user.password)
-        ))
+        return this.db.save(User(user, this.passwordEncoder))
     }
 
     /**
