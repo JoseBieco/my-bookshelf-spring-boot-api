@@ -1,5 +1,6 @@
 package com.example.demo.book
 
+import com.example.demo.book.dtos.CreateBookDto
 import java.io.Serializable
 import java.time.LocalDate
 import javax.persistence.*
@@ -32,4 +33,14 @@ class Book(
         @Column(nullable = true)
         var completionDate: LocalDate? = null
 ) : Serializable {
+
+        constructor(createBookDto: CreateBookDto): this() {
+                this.name = createBookDto.name
+                this.image = createBookDto.image
+                this.description = createBookDto.description
+                this.isRead = createBookDto.isRead
+                this.rating = createBookDto.rating
+                this.purchaseDate = createBookDto.purchaseDate
+                this.completionDate = createBookDto.completionDate
+        }
 }
