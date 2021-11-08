@@ -1,4 +1,14 @@
 package com.example.demo.book.dtos
 
-class CreateBookDto {
+import java.time.LocalDate
+
+class CreateBookDto(
+    var name: String? = null,
+    var image: String? = null,
+    var description: String? = null,
+    var isRead: Boolean? = null,
+    var rating: Double? = null,
+    var purchaseDate: LocalDate? = null,
+    var completionDate: LocalDate? = null
+) {
 }
