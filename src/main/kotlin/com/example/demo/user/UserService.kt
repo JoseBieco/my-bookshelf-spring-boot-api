@@ -60,11 +60,21 @@ class UserService(
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid email or password!")
         }
 
+        // TODO: Validate if user, from db, is not null
         val user = this.db.getByEmail(login.email)
         if(!this.passwordEncoder.matches(login.password, user.password)) {
             throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized!")
         }
 
         return user
+    }
+
+    /**
+     * Delete entity by id
+     * @param id Long
+     */
+    fun delete(id: Long) {
+        // TODO: Validate if user with id exists
+        return this.db.deleteById(id)
     }
 }
