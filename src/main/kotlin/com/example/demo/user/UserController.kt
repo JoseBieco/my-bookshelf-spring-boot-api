@@ -4,6 +4,7 @@ import com.example.demo.user.dtos.LoginDto
 import com.example.demo.user.dtos.RegisterUserDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.*
+import javax.servlet.http.HttpServletResponse
 
 @RestController
 @RequestMapping("auth")
@@ -28,8 +29,9 @@ class UserController(
 
     @PostMapping
     @RequestMapping("/login")
-    fun login(@RequestBody login: LoginDto): User {
-        return this.service.login(login)
+    fun login(@RequestBody login: LoginDto, response: HttpServletResponse): User {
+        return this.service.login(login, response)
+        // TODO: Create function to generate jwt token
     }
 
     @DeleteMapping
