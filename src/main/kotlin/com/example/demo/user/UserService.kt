@@ -94,9 +94,38 @@ class UserService(
     /**
      * Delete entity by id
      * @param id Long
+     * @throws HttpStatus.NOT_FOUND The entity with id does not exist
      */
     fun delete(id: Long) {
-        // TODO: Validate if user with id exists
+        if(!this.db.existsById(id)) {
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "The entity with id $id does not exist")
+        }
         return this.db.deleteById(id)
+    }
+
+    /**
+     * Get entity by id
+     * @param  id Long
+     * @throws HttpStatus.NOT_FOUND The entity with id does not exist
+     * @return User
+     */
+    fun getById(id: Long): User {
+        if(!this.db.existsById(id)) {
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "The entity with id $id does not exist")
+        }
+        return this.db.getOne(id)
+    }
+
+    /**
+     * Get user from sent token
+     * @throws HttpStatus.UNAUTHORIZED Unauthorized
+     * @return User
+     */
+    fun getUserFromToken(token: String?): User {
+        if(token == null) {
+            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized!")
+        }
+        val id = Jwts.parser().setSigningKey("secret").parseClaimsJws(token).body.issuer.toLong()
+        return this.getById(id);
     }
 }
