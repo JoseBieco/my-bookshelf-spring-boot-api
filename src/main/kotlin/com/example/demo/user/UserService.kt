@@ -51,6 +51,7 @@ class UserService(
      * @param login LoginDto
      * @return Valid User
      * @throws HttpStatus.BAD_REQUEST Invalid email or password
+     * @throws HttpStatus.BAD_REQUEST Email not registered yet
      * @throws HttpStatus.UNAUTHORIZED Unauthorized
      */
     fun login(login: LoginDto, response: HttpServletResponse): User {
