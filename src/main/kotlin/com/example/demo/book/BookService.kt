@@ -32,6 +32,12 @@ class BookService(
         return this.db.save(book)
     }
 
+    /**
+     * Get entity by id
+     * @param id Long
+     * @throws HttpStatus.NOT_FOUND The entity with id does not exist
+     * @return Book
+     */
     fun getOne(id: Long): Book {
         if(!this.db.existsById(id)) {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "The entity with id $id does not exist")
