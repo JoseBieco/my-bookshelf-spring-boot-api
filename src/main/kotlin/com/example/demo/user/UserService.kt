@@ -2,11 +2,16 @@ package com.example.demo.user
 
 import com.example.demo.user.dtos.LoginDto
 import com.example.demo.user.dtos.RegisterUserDto
+import io.jsonwebtoken.Jwts
+import io.jsonwebtoken.SignatureAlgorithm
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
+import java.util.*
+import javax.servlet.http.Cookie
+import javax.servlet.http.HttpServletResponse
 
 @Service
 class UserService(
@@ -48,7 +53,7 @@ class UserService(
      * @throws HttpStatus.BAD_REQUEST Invalid email or password
      * @throws HttpStatus.UNAUTHORIZED Unauthorized
      */
-    fun login(login: LoginDto): User {
+    fun login(login: LoginDto, response: HttpServletResponse): User {
         /**
          * Validate email and password;
          * If not valid, throw 400;
@@ -60,12 +65,28 @@ class UserService(
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid email or password!")
         }
 
-        // TODO: Validate if user, from db, is not null
+        // Check if the db have the user email and then get the user to validate the password
+        if(this.db.searchEmail(login.email) == 0L) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Email not registered yet!")
+        }
         val user = this.db.getByEmail(login.email)
+
         if(!this.passwordEncoder.matches(login.password, user.password)) {
             throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized!")
         }
 
+        val issuer = user.id.toString()
+
+        // TODO: create a '.env' to the secret
+        val token = Jwts.builder()
+            .setIssuer(issuer)
+            .setExpiration(Date(System.currentTimeMillis() + 60 * 24 * 1000)) // 1 day
+            .signWith(SignatureAlgorithm.HS512, "secret").compact()
+
+        val cookie = Cookie("token", token)
+        cookie.isHttpOnly = true
+
+        response.addCookie(cookie)
         return user
     }
 
