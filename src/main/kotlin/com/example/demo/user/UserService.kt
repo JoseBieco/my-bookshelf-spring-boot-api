@@ -66,11 +66,12 @@ class UserService(
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid email or password!")
         }
 
+        // TODO: Change the get email to optional, more clean code
         // Check if the db have the user email and then get the user to validate the password
         if(this.db.searchEmail(login.email) == 0L) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Email not registered yet!")
         }
-        val user = this.db.getByEmail(login.email)
+        val user = this.db.getByEmail1(login.email)
 
         if(!this.passwordEncoder.matches(login.password, user.password)) {
             throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized!")
