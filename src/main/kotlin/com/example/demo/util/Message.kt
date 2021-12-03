@@ -1,4 +1,4 @@
 package com.example.demo.util
 
-class Message {
+class Message(val message: String) {
 }
