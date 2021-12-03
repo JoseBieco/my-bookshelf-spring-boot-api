@@ -2,6 +2,7 @@ package com.example.demo.user
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
+import java.util.*
 
 interface UserRepository: JpaRepository<User, Long> {
 
@@ -14,5 +15,7 @@ interface UserRepository: JpaRepository<User, Long> {
      * @return User based on email
      */
     @Query("SELECT * FROM users WHERE email LIKE :email", nativeQuery = true)
-    fun getByEmail(email: String?): User
+    fun getByEmail1(email: String?): User
+
+    fun getByEmail(email: String): Optional<User>
 }
