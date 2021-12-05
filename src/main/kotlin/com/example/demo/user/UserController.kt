@@ -34,7 +34,7 @@ class UserController(
 
     @PostMapping
     @RequestMapping("/login")
-    fun login(@RequestBody login: LoginDto, response: HttpServletResponse): User {
+    fun login(@RequestBody login: LoginDto, response: HttpServletResponse): User? {
         return this.service.login(login, response)
     }
 
