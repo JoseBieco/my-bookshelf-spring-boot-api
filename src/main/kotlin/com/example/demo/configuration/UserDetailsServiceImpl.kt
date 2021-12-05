@@ -15,8 +15,6 @@ class UserDetailsServiceImpl(
     val db: UserRepository
 ): UserDetailsService {
 
-
-
     @Autowired
     lateinit var passwordEncoder: PasswordEncoder
 
