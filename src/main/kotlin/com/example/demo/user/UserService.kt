@@ -1,18 +1,17 @@
 package com.example.demo.user
 
+import com.example.demo.configuration.UserDetailsServiceImpl
+import com.example.demo.configuration.jwt.JwtService
 import com.example.demo.user.dtos.LoginDto
 import com.example.demo.user.dtos.RegisterUserDto
 import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.SignatureAlgorithm
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
+import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
-import java.util.*
-import javax.servlet.http.Cookie
-import javax.servlet.http.HttpServletResponse
 
 @Service
 class UserService(
@@ -20,7 +19,13 @@ class UserService(
     val db: UserRepository,
 
     @Autowired
-    val passwordEncoder: PasswordEncoder
+    val passwordEncoder: PasswordEncoder,
+
+    @Autowired
+    val userDetails: UserDetailsServiceImpl,
+
+    @Autowired
+    val jwtService: JwtService
 ) {
 
     /**
@@ -55,7 +60,7 @@ class UserService(
      * @throws UsernameNotFoundException Email not registered yet
      * @throws HttpStatus.UNAUTHORIZED Unauthorized
      */
-    fun login(login: LoginDto, response: HttpServletResponse): User? {
+    fun login(login: LoginDto): User {
         /**
          * Validate email and password;
          * If not valid, throw 400;
@@ -63,30 +68,15 @@ class UserService(
          * Check if email is registered and if the password match,
          * If the password not match, throw 401
          */
-        if(!login.validate()) {
+        if (!login.validate()) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid email or password!")
         }
 
-        // Check if the db have the user email and then get the user to validate the password
-        val user = login.email?.let { this.db.getByEmail(it)
-            .orElseThrow { UsernameNotFoundException("Email not registered yet!") } }
+        val user: User =  if (authenticate(login)) db.getNotOptionalByEmail(login.email)
+        else throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized!")
 
-        if(!this.passwordEncoder.matches(login.password, user?.password)) {
-            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized!")
-        }
+        user.token = jwtService.generateToken(user)
 
-        val issuer = user?.id.toString()
-
-        // TODO: create a '.env' to the secret
-        val token = Jwts.builder()
-            .setIssuer(issuer)
-            .setExpiration(Date(System.currentTimeMillis() + 60 * 24 * 1000)) // 1 day
-            .signWith(SignatureAlgorithm.HS512, "secret").compact()
-
-        val cookie = Cookie("token", token)
-        cookie.isHttpOnly = true
-
-        response.addCookie(cookie)
         return user
     }
 
@@ -126,5 +116,10 @@ class UserService(
         }
         val id = Jwts.parser().setSigningKey("secret").parseClaimsJws(token).body.issuer.toLong()
         return this.getById(id);
+    }
+
+    fun authenticate(loginDto: LoginDto): Boolean {
+        val user: UserDetails? = loginDto.email?.let { userDetails.loadUserByUsername(it) }
+        return passwordEncoder.matches(loginDto.password, user?.password)
     }
 }
