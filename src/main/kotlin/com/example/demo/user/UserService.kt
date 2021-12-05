@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
+import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
@@ -51,10 +52,10 @@ class UserService(
      * @param login LoginDto
      * @return Valid User
      * @throws HttpStatus.BAD_REQUEST Invalid email or password
-     * @throws HttpStatus.BAD_REQUEST Email not registered yet
+     * @throws UsernameNotFoundException Email not registered yet
      * @throws HttpStatus.UNAUTHORIZED Unauthorized
      */
-    fun login(login: LoginDto, response: HttpServletResponse): User {
+    fun login(login: LoginDto, response: HttpServletResponse): User? {
         /**
          * Validate email and password;
          * If not valid, throw 400;
@@ -66,18 +67,15 @@ class UserService(
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid email or password!")
         }
 
-        // TODO: Change the get email to optional, more clean code
         // Check if the db have the user email and then get the user to validate the password
-        if(this.db.searchEmail(login.email) == 0L) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Email not registered yet!")
-        }
-        val user = this.db.getByEmail1(login.email)
+        val user = login.email?.let { this.db.getByEmail(it)
+            .orElseThrow { UsernameNotFoundException("Email not registered yet!") } }
 
-        if(!this.passwordEncoder.matches(login.password, user.password)) {
+        if(!this.passwordEncoder.matches(login.password, user?.password)) {
             throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized!")
         }
 
-        val issuer = user.id.toString()
+        val issuer = user?.id.toString()
 
         // TODO: create a '.env' to the secret
         val token = Jwts.builder()
