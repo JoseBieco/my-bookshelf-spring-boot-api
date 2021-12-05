@@ -15,5 +15,10 @@ interface UserRepository: JpaRepository<User, Long> {
     @Query("SELECT COUNT(*) AS Same FROM users WHERE email LIKE CONCAT('%', :email, '%')", nativeQuery = true)
     fun searchEmail(email: String?): Long
 
+    /**
+     * Get user by email
+     * @param email String
+     * @return Optional of user
+     */
     fun getByEmail(email: String): Optional<User>
 }
