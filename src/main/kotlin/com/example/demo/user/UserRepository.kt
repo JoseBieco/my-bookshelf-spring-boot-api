@@ -5,8 +5,7 @@ import org.springframework.data.jpa.repository.Query
 import java.util.*
 
 interface UserRepository: JpaRepository<User, Long> {
-
-    // Get the count for how many times the email is registered
+    
     /**
      * Get the count for how many times the email is registered
      * @param email String

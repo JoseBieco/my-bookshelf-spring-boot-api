@@ -25,9 +25,6 @@ class WebSecurityConfig(
         auth
             .userDetailsService(userDetailService)
             .passwordEncoder(encoder())
-
-        /*auth.inMemoryAuthentication().passwordEncoder(encoder())
-            .withUser("jose").password(encoder().encode("13072001")).roles("USER")*/
     }
 
     override fun configure(http: HttpSecurity) {
