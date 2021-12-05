@@ -5,15 +5,15 @@ import com.example.demo.user.dtos.RegisterUserDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import javax.servlet.http.Cookie
 import javax.servlet.http.HttpServletResponse
 import com.example.demo.util.Message
+import org.springframework.http.HttpStatus
 
 @RestController
 @RequestMapping("auth")
 class UserController(
     @Autowired
-    val service: UserService
+    val service: UserService,
 ) {
     /**
      *  Routes:
@@ -28,14 +28,15 @@ class UserController(
 
     @PostMapping
     @RequestMapping("/register")
+    @ResponseStatus(HttpStatus.CREATED)
     fun register(@RequestBody user: RegisterUserDto): User {
         return this.service.create(user)
     }
 
     @PostMapping
     @RequestMapping("/login")
-    fun login(@RequestBody login: LoginDto, response: HttpServletResponse): User? {
-        return this.service.login(login, response)
+    fun login(@RequestBody login: LoginDto): User {
+        return this.service.login(login)
     }
 
     @DeleteMapping
@@ -51,9 +52,6 @@ class UserController(
 
     @PostMapping("/logout")
     fun logout(response: HttpServletResponse): ResponseEntity<Any> {
-        val cookie = Cookie("token", "")
-        cookie.maxAge = 0
-        response.addCookie(cookie)
         return ResponseEntity.ok(Message("Logged off!"))
     }
 }
