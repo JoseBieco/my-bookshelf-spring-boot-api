@@ -28,10 +28,10 @@ class Book(
         var rating: Double? = null,
 
         @Column(nullable = true)
-        var purchaseDate: LocalDate? = null,
+        var purchaseDate: String? = null,
 
         @Column(nullable = true)
-        var completionDate: LocalDate? = null
+        var completionDate: String? = null
 ) : Serializable {
 
         constructor(createBookDto: CreateBookDto): this() {
@@ -40,7 +40,7 @@ class Book(
                 this.description = createBookDto.description
                 this.isRead = createBookDto.isRead
                 this.rating = createBookDto.rating
-                this.purchaseDate = createBookDto.purchaseDate
-                this.completionDate = createBookDto.completionDate
+                this.purchaseDate = createBookDto.purchaseDate.toString()
+                this.completionDate = createBookDto.completionDate.toString()
         }
 }
