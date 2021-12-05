@@ -24,7 +24,9 @@ class User(
     var password: String? = null,
 
     @Column(columnDefinition = "Boolean", nullable = false)
-    var isAdmin: Boolean = false
+    var isAdmin: Boolean = false,
+
+    var token: String = ""
 ): Serializable {
 
     constructor(registerUserDto: RegisterUserDto, passwordEncoder: PasswordEncoder): this() {
