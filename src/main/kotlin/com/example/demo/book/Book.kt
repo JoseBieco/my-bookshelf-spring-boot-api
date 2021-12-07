@@ -2,7 +2,6 @@ package com.example.demo.book
 
 import com.example.demo.book.dtos.CreateBookDto
 import java.io.Serializable
-import java.time.LocalDate
 import javax.persistence.*
 
 @Entity
@@ -11,6 +10,9 @@ class Book(
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         val id: Long? = null,
+
+        @Column(columnDefinition = "integer", nullable = false)
+        var userId: Long? = null,
 
         @Column(columnDefinition = "TEXT",  nullable = false)
         var name: String? = null,
@@ -42,5 +44,6 @@ class Book(
                 this.rating = createBookDto.rating
                 this.purchaseDate = createBookDto.purchaseDate.toString()
                 this.completionDate = createBookDto.completionDate.toString()
+                this.userId = createBookDto.userId?.toLong()
         }
 }
