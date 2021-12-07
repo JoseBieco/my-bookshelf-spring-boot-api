@@ -44,4 +44,16 @@ class BookController(
     fun update(@PathVariable bookId: Long, @RequestBody updateBook: Book): Book {
         return this.service.update(bookId, updateBook)
     }
+
+    @GetMapping("/user")
+    fun getBooksFromUser(
+        @RequestParam(value = "page", defaultValue = "0") page: Int,
+        @RequestParam(value = "linesPerPage", defaultValue = "5") linesPerPage: Int,
+        @RequestParam(value = "direction", defaultValue = "ASC") direction: String,
+        @RequestParam(value = "orderBy", defaultValue = "id") orderBy: String,
+        @RequestParam(value = "userId", defaultValue = "0") userId: Long
+    ): Page<Book> {
+        val pageRequest: PageRequest = PageRequest.of(page, linesPerPage, Sort.Direction.valueOf(direction), orderBy)
+        return service.getByUserId(pageRequest, userId)
+    }
 }
