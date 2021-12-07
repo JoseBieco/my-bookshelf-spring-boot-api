@@ -9,6 +9,7 @@ class CreateBookDto(
     var isRead: Boolean? = null,
     var rating: Double? = null,
     var purchaseDate: LocalDate? = null,
-    var completionDate: LocalDate? = null
+    var completionDate: LocalDate? = null,
+    var userId: Long? = null
 ) {
 }
