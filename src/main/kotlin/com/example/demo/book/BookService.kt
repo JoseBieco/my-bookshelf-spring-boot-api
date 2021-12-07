@@ -17,7 +17,16 @@ class BookService(
         return db.find(pageable)
     }
 
+    /**
+     * Create a new book
+     * @param newBook CreateBookDto
+     * @return Created book
+     * @throws HttpStatus.BAD_REQUEST User id is nor defined!
+     */
     fun create(newBook: CreateBookDto): Book {
+        if(newBook.userId == null){
+            throw  throw ResponseStatusException(HttpStatus.BAD_REQUEST, "User id is nor defined!")
+        }
         return this.db.save(Book(newBook))
     }
 
@@ -43,5 +52,15 @@ class BookService(
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "The entity with id $id does not exist")
         }
         return this.db.getOne(id)
+    }
+
+    /**
+     * Get books by user id
+     * @param pageable Pageable
+     * @param userId Long
+     * @return Page of books related to user id
+     */
+    fun getByUserId(pageable: Pageable, userId: Long): Page<Book> {
+        return db.getByUserId(userId, pageable)
     }
 }
