@@ -1,125 +1,65 @@
 package com.example.demo.user
 
-import com.example.demo.configuration.UserDetailsServiceImpl
-import com.example.demo.configuration.jwt.JwtService
-import com.example.demo.user.dtos.LoginDto
-import com.example.demo.user.dtos.RegisterUserDto
-import io.jsonwebtoken.Jwts
+import com.example.demo.user.dto.UserDto
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
-import org.springframework.security.core.userdetails.UserDetails
-import org.springframework.security.core.userdetails.UsernameNotFoundException
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
+import java.time.LocalDateTime
 
 @Service
 class UserService(
     @Autowired
     val db: UserRepository,
-
-    @Autowired
-    val passwordEncoder: PasswordEncoder,
-
-    @Autowired
-    val userDetails: UserDetailsServiceImpl,
-
-    @Autowired
-    val jwtService: JwtService
 ) {
 
     /**
-     * Register new user
-     * @param user User
-     * @return Created User
-     * @throws HttpStatus.BAD_REQUEST Invalid user information
-     * @throws HttpStatus.BAD_REQUEST This email is already registered
+     * Get all users from database that are active
      */
-    fun create(user: RegisterUserDto): User {
-
-        if(!user.validate()) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid user information!")
-        }
-
-        /**
-         * Validate email -> must be unique
-         * throw error if it's not unique
-         */
-        if(this.db.searchEmail(user.email) > 0){
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "This email is already registered")
-        }
-
-        return this.db.save(User(user, this.passwordEncoder))
+    fun getAll(pageable: PageRequest): Page<User> {
+        return db.getAll(pageable)
     }
 
     /**
-     * Login method
-     * @param login LoginDto
-     * @return Valid User
-     * @throws HttpStatus.BAD_REQUEST Invalid email or password
-     * @throws UsernameNotFoundException Email not registered yet
-     * @throws HttpStatus.UNAUTHORIZED Unauthorized
+     * Alter user deleted_at attribute
+     * Checks if the userId param exists, if not, throws bad request
+     * @param userId Represents the user unique key
      */
-    fun login(login: LoginDto): User {
-        /**
-         * Validate email and password;
-         * If not valid, throw 400;
-         *
-         * Check if email is registered and if the password match,
-         * If the password not match, throw 401
-         */
-        if (!login.validate()) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid email or password!")
-        }
-
-        val user: User =  if (authenticate(login)) db.getNotOptionalByEmail(login.email)
-        else throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized!")
-
-        user.token = jwtService.generateToken(user)
-
-        return user
+    fun softDelete(userId: Long): User {
+        return db.findById(userId)
+            .orElseThrow {
+                ResponseStatusException(HttpStatus.NOT_FOUND, "User not found.")
+            }.apply { deletedAt = LocalDateTime.now() }.run { db.save(this) }
     }
 
     /**
-     * Delete entity by id
-     * @param id Long
-     * @throws HttpStatus.NOT_FOUND The entity with id does not exist
+     * Update user's name
+     * @param userId User unique identifier
+     * @param updatedUser Request body data
      */
-    fun delete(id: Long) {
-        if(!this.db.existsById(id)) {
-            throw ResponseStatusException(HttpStatus.NOT_FOUND, "The entity with id $id does not exist")
+    fun update(userId: Long, updatedUser: UserDto): User {
+        val user = db.findById(userId).orElseThrow {
+            ResponseStatusException(HttpStatus.NOT_FOUND, "User not found.")
         }
-        return this.db.deleteById(id)
+        user.name = updatedUser.name
+
+        user.apply {
+            name = updatedUser.name
+            updatedAt = LocalDateTime.now()
+        }
+
+        return db.save(user)
     }
 
     /**
-     * Get entity by id
-     * @param  id Long
-     * @throws HttpStatus.NOT_FOUND The entity with id does not exist
-     * @return User
+     * Get user from database by id
      */
-    fun getById(id: Long): User {
-        if(!this.db.existsById(id)) {
-            throw ResponseStatusException(HttpStatus.NOT_FOUND, "The entity with id $id does not exist")
-        }
-        return this.db.getOne(id)
-    }
-
-    /**
-     * Get user from sent token
-     * @throws HttpStatus.UNAUTHORIZED Unauthorized
-     * @return User
-     */
-    fun getUserFromToken(token: String?): User {
-        if(token == null) {
-            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized!")
-        }
-        val id = Jwts.parser().setSigningKey("secret").parseClaimsJws(token).body.issuer.toLong()
-        return this.getById(id);
-    }
-
-    fun authenticate(loginDto: LoginDto): Boolean {
-        val user: UserDetails? = loginDto.email?.let { userDetails.loadUserByUsername(it) }
-        return passwordEncoder.matches(loginDto.password, user?.password)
+    fun getById(userId: Long): User {
+        return db.findById(userId)
+            .orElseThrow {
+                ResponseStatusException(HttpStatus.NOT_FOUND, "User not found.")
+            }
     }
 }
