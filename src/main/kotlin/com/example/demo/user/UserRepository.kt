@@ -2,29 +2,31 @@ package com.example.demo.user
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
-import java.util.*
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 
 interface UserRepository: JpaRepository<User, Long> {
-
-    /**
-     * Get the count for how many times the email is registered
-     * @param email String
-     * @return number representing how many times the email is registered
-     */
-    @Query("SELECT COUNT(*) AS Same FROM users WHERE email LIKE CONCAT('%', :email, '%')", nativeQuery = true)
-    fun searchEmail(email: String?): Long
 
     /**
      * Get user by email
      * @param email String
      * @return Optional of user
      */
-    fun getByEmail(email: String): Optional<User>
+    fun getByEmail(email: String): User?
 
     /**
-     * @param email String
-     * @return User based on email
+     * Get all users pageable
+     * @param pageRequest Pageable
+     * @return Page of users
      */
-    @Query("SELECT * FROM users WHERE email LIKE :email", nativeQuery = true)
-    fun getNotOptionalByEmail(email: String?): User
+    @Query("SELECT u FROM User u WHERE u.deletedAt IS NULL")
+    fun getAll(pageRequest: Pageable): Page<User>
+
+    /**
+     * Get user by token
+     * @param token String
+     * @return Optional of user
+     */
+    @Query("SELECT u FROM User u WHERE u.token = :token")
+    fun getByToken(token: String): User?
 }
