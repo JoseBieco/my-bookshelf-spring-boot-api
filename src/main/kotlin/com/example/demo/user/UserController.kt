@@ -1,57 +1,65 @@
 package com.example.demo.user
 
-import com.example.demo.user.dtos.LoginDto
-import com.example.demo.user.dtos.RegisterUserDto
+import com.example.demo.user.dto.UserDto
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
-import javax.servlet.http.HttpServletResponse
-import com.example.demo.util.Message
-import org.springframework.http.HttpStatus
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("auth")
+@RequestMapping("users")
 class UserController(
     @Autowired
-    val service: UserService,
+    val service: UserService
 ) {
     /**
-     *  Routes:
-     *      Login -> /auth/login, method: POST
-     *      Register -> /auth/register, method: POST
-     *      GetUserFromToken -> /auth/user, method: GET
-     *      Logout -> /auth/logout, method: POST
-     *  Basic:
-     *      Delete -> /auth, method: DELETE
-     *      Update -> /auth/{userId}, method: PUT { Name, Password, Email?; }
-     * */
+     * Get by id
+     * Get All -> Active
+     * Update
+     * Soft Delete
+     * Destroy -> remove user from database
+     */
 
-    @PostMapping
-    @RequestMapping("/register")
-    @ResponseStatus(HttpStatus.CREATED)
-    fun register(@RequestBody user: RegisterUserDto): User {
-        return this.service.create(user)
+    /**
+     * Get all active users, pageable
+     */
+    @GetMapping
+    fun getAll(
+        @RequestParam(value = "page", defaultValue = "0") page: Int,
+        @RequestParam(value = "linesPerPage", defaultValue = "5") linesPerPage: Int,
+    ): Page<User> {
+        val pageRequest: PageRequest = PageRequest.of(page, linesPerPage)
+        return service.getAll(pageRequest)
     }
 
-    @PostMapping
-    @RequestMapping("/login")
-    fun login(@RequestBody login: LoginDto): User {
-        return this.service.login(login)
+    /**
+     * Soft delete user
+     */
+    @DeleteMapping("/{userId}")
+    fun delete(@PathVariable userId: Long): User {
+        return service.softDelete(userId)
     }
 
-    @DeleteMapping
-    @RequestMapping("/{userId}")
-    fun delete(@PathVariable userId: Long) {
-        return this.service.delete(userId)
+    /**
+     * Update user's name and/or email
+     */
+    @PutMapping("/{userId}")
+    fun update(@PathVariable userId: Long, @RequestBody body: UserDto): User {
+        return service.update(userId, body)
     }
 
-    @GetMapping("/user")
-    fun getUserFromToken(@CookieValue("token") token : String?): User {
-        return this.service.getUserFromToken(token);
-    }
-
-    @PostMapping("/logout")
-    fun logout(response: HttpServletResponse): ResponseEntity<Any> {
-        return ResponseEntity.ok(Message("Logged off!"))
+    /**
+     * Get User entity  by id
+     */
+    @GetMapping("/{userId}")
+    fun getById(@PathVariable userId: Long): User {
+        return service.getById(userId)
     }
 }
