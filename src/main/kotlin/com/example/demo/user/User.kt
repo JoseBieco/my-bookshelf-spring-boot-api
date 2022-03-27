@@ -1,38 +1,72 @@
 package com.example.demo.user
 
-import com.example.demo.user.dtos.RegisterUserDto
-import com.fasterxml.jackson.annotation.JsonProperty
+import com.example.demo.auth.dto.RegisterDto
+import com.fasterxml.jackson.annotation.JsonFormat
+import com.fasterxml.jackson.annotation.JsonIgnore
 import org.springframework.security.crypto.password.PasswordEncoder
 import java.io.Serializable
-import javax.persistence.*
+import java.time.LocalDateTime
+import javax.persistence.Column
+import javax.persistence.Entity
+import javax.persistence.GeneratedValue
+import javax.persistence.GenerationType
+import javax.persistence.Id
+import javax.persistence.Table
 
 @Entity
-@Table(name = "USERS")
+@Table(name = "users")
 class User(
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id", nullable = false)
+    var id: Long? = null,
 
-    @Column(columnDefinition = "TEXT",  nullable = false)
+    @Column(name= "name", nullable = false)
     var name: String? = null,
 
-    @Column(columnDefinition = "TEXT",  nullable = false, unique = true)
+    @Column(name= "email", nullable = false, unique = true)
     var email: String? = null,
 
-    @Column(columnDefinition = "TEXT",  nullable = false)
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Column(name= "password", nullable = false)
+    @JsonIgnore
     var password: String? = null,
 
-    @Column(columnDefinition = "Boolean", nullable = false)
-    var isAdmin: Boolean = false,
+    @Column(name = "token", nullable = true)
+    @JsonIgnore
+    var token: String? = null,
 
-    var token: String = ""
+    @Column(name = "roles", nullable = false)
+    @JsonIgnore
+    var roles: String? = "USER",
+
+    @Column(name = "createdAt", nullable = true)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    var createdAt: LocalDateTime? = null,
+
+    @Column(name = "updatedAt", nullable = true)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    var updatedAt: LocalDateTime? = null,
+
+    @Column(name = "deletedAt", nullable = true)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    var deletedAt: LocalDateTime? = null
 ): Serializable {
 
-    constructor(registerUserDto: RegisterUserDto, passwordEncoder: PasswordEncoder): this() {
-        this.name = registerUserDto.name
-        this.email = registerUserDto.email
-        this.password = passwordEncoder.encode(registerUserDto.password)
-        this.isAdmin = registerUserDto.isAdmin
+    constructor(user: RegisterDto): this() {
+        this.apply {
+            name = user.name
+            email = user.email
+            password = user.password
+            createdAt = LocalDateTime.now()
+        }
+    }
+
+    /**
+     * Encode user password
+     * @param passwordEncoder PasswordEncoder
+     * @return User model
+     */
+    fun encodePassword( passwordEncoder: PasswordEncoder): User {
+        return this.apply { password =  passwordEncoder.encode(password) }
     }
 }
